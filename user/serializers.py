@@ -25,24 +25,24 @@ class RegisterSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ['username','name','phone_number','gender','profile_pix','password','confirm_password','email']
 
-        def validate(self, data):
+    def validate(self, data):
             if data['password'] != data['confirm_password']:
                 raise serializers.ValidationError("Passwords do not match.")
             return data
         
-        def create(self, validated_data):
-            username = validated_data.pop('email')
-            email = validated_data.pop('email')
-            password = validated_data.pop('password')
+    def create(self, validated_data):
+        username = validated_data.pop('username')
+        email = validated_data.pop('email')
+        password = validated_data.pop('password')
 
-            user = User.objects.create(username=username, email=email, password=password)
+        user = User.objects.create_user(username=username, email=email, password=password)
 
-            profile = Profile.objects.create(
-                user = user,
-                name = validated_data['name'] ,
-                phone_number = validated_data['phone_number'],
-                gender = validated_data['gender'],
-                profile_pix = validated_data['profile_pix']
-            )
-            # SendMail()
-            return profile.name
+        profile = Profile.objects.create(
+            user = user,
+            name = validated_data['name'] ,
+            phone_number = validated_data['phone_number'],
+            gender = validated_data['gender'],
+            profile_pix = validated_data['profile_pix'],
+        )
+        # SendMail()
+        return profile

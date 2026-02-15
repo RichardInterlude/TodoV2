@@ -16,6 +16,7 @@ class RegisterView(APIView):
         try:
             serializers = RegisterSerializer(data=request.data)
             if serializers.is_valid():
+                serializers.save()
                 return Response(serializers.data, status=status.HTTP_201_CREATED)
             return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
@@ -35,12 +36,11 @@ class RegisterView(APIView):
 class LoginView(APIView):
     def post(self,request):
         try:
-            email = request.data.get['email']
-            password = request.data.get['password']
-
+            email = request.data.get('email')
+            password = request.data.get('password')
             user = authenticate(request, username=email, password=password)
-
             if user is not None:
+                login(request, user)
                 return Response ({'message':'User Login Successfully'},status=status.HTTP_200_OK)
             return Response ({'message':'Invalid username or password'},status=status.HTTP_401_UNAUTHORIZED)
         except Exception as e:
@@ -48,6 +48,7 @@ class LoginView(APIView):
         
 class LogoutView(APIView):
     def post(self,request):
+        permission_classes = [IsAuthenticated]
         try:
             logout(request)
             return Response({'message':'User Logout Successfully'},status=status.HTTP_200_OK)
